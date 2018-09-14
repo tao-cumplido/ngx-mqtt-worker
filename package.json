@@ -1,0 +1,90 @@
+{
+    "name": "ngx-mqtt-worker",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "ng": "ng",
+        "start": "ng serve",
+        "build": "webpack --require ts-node/register && ng build",
+        "build:prod": "ng build --prod",
+        "test": "ng test",
+        "lint": "ng lint",
+        "e2e": "ng e2e",
+        "webpack": "tsc --lib es6 --outDir tmp webpack.config.ts && webpack-cli --config tmp/webpack.config.js --mode development",
+        "precommit": "lint-staged"
+    },
+    "lint-staged": {
+        "ignore": [
+            "package.json",
+            "package-lock.json"
+        ],
+        "linters": {
+            "*.{ts,css,scss,js,json,md}": [
+                "prettier --write",
+                "git add"
+            ],
+            "*.html": [
+                "prettyhtml --tab-width=2",
+                "git add"
+            ],
+            "projects/**/*.{ts,css,scss,html}": [
+                "ng lint ngx-mqtt-worker --format=verbose"
+            ],
+            "src/**/*.{ts,css,scss,html}": [
+                "ng lint ngx-mqtt-worker-demo --format=verbose"
+            ],
+            "e2e/**/*.{ts,css,scss,html}": [
+                "ng lint ngx-mqtt-worker-demo-e2e --format=verbose"
+            ]
+        }
+    },
+    "dependencies": {
+        "@angular/animations": "^6.1.0",
+        "@angular/common": "^6.1.0",
+        "@angular/compiler": "^6.1.0",
+        "@angular/core": "^6.1.0",
+        "@angular/forms": "^6.1.0",
+        "@angular/http": "^6.1.0",
+        "@angular/platform-browser": "^6.1.0",
+        "@angular/platform-browser-dynamic": "^6.1.0",
+        "@angular/router": "^6.1.0",
+        "core-js": "^2.5.4",
+        "rxjs": "~6.3.2",
+        "zone.js": "~0.8.26"
+    },
+    "devDependencies": {
+        "@angular-devkit/build-angular": "~0.8.1",
+        "@angular/cli": "~6.2.1",
+        "@angular/compiler-cli": "^6.1.0",
+        "@angular/language-service": "^6.1.0",
+        "@starptech/prettyhtml": "0.0.57",
+        "@types/fs-extra": "^5.0.4",
+        "@types/jasmine": "~2.8.8",
+        "@types/jasminewd2": "~2.0.3",
+        "@types/node": "~10.9.4",
+        "@types/node-fetch": "^2.1.2",
+        "@types/webpack": "^4.4.11",
+        "codelyzer": "~4.4.4",
+        "fs-extra": "^7.0.0",
+        "husky": "^0.14.3",
+        "jasmine-core": "~2.99.1",
+        "jasmine-spec-reporter": "~4.2.1",
+        "karma": "~3.0.0",
+        "karma-chrome-launcher": "~2.2.0",
+        "karma-coverage-istanbul-reporter": "~2.0.4",
+        "karma-jasmine": "~1.1.2",
+        "karma-jasmine-html-reporter": "^0.2.2",
+        "lint-staged": "^7.2.2",
+        "mqtt": "~2.18.8",
+        "node-fetch": "^2.2.0",
+        "prettier": "^1.14.2",
+        "protractor": "~5.4.1",
+        "ts-loader": "^5.1.0",
+        "ts-node": "~7.0.1",
+        "tslint": "~5.11.0",
+        "tslint-config-prettier": "^1.15.0",
+        "typescript": "~2.9.2",
+        "webpack": "^4.19.0",
+        "webpack-cli": "^3.1.0"
+    }
+}
