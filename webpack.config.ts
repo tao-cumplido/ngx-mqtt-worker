@@ -1,6 +1,7 @@
 import { pathExists, readJson, writeFile } from 'fs-extra';
 import * as path from 'path';
 
+import { TsConfigPathsPlugin } from 'awesome-typescript-loader';
 import fetch from 'node-fetch';
 import { Configuration } from 'webpack';
 
@@ -32,13 +33,14 @@ async function createConfig(): Promise<Configuration> {
             rules: [
                 {
                     test: /\.ts$/,
-                    use: 'ts-loader',
+                    use: 'awesome-typescript-loader',
                     exclude: [/node_modules/],
                 },
             ],
         },
         resolve: {
             extensions: ['.js', '.ts'],
+            plugins: [new TsConfigPathsPlugin()],
         },
         output: {
             filename: 'mqtt-worker.js',

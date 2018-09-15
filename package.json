@@ -1,12 +1,14 @@
 {
-    "name": "ngx-mqtt-worker",
+    "name": "ngx-mqtt-worker-demo",
     "version": "0.0.0",
     "private": true,
     "scripts": {
         "ng": "ng",
-        "start": "ng serve",
-        "build": "webpack --require ts-node/register && ng build",
-        "build:prod": "ng build --prod",
+        "start": "ng serve ngx-mqtt-worker-demo",
+        "build": "run-s build:webpack \"build:worker -- --mode development\" \"ng -- build\"",
+        "build:prod": "run-s build:webpack \"build:worker -- --mode development\" \"ng -- build --prod\"",
+        "build:webpack": "tsc --lib es6 --outDir tmp webpack.config.ts",
+        "build:worker": "webpack-cli --config tmp/webpack.config.js",
         "test": "ng test",
         "lint": "ng lint",
         "e2e": "ng e2e",
@@ -27,7 +29,7 @@
                 "prettyhtml --tab-width=2",
                 "git add"
             ],
-            "projects/**/*.{ts,css,scss,html}": [
+            "projects/ngx-mqtt-worker/**/*.{ts,css,scss,html}": [
                 "ng lint ngx-mqtt-worker --format=verbose"
             ],
             "src/**/*.{ts,css,scss,html}": [
@@ -53,8 +55,9 @@
         "zone.js": "~0.8.26"
     },
     "devDependencies": {
-        "@angular-devkit/build-angular": "~0.8.1",
-        "@angular/cli": "~6.2.1",
+        "@angular-devkit/build-angular": "~0.8.2",
+        "@angular-devkit/build-ng-packagr": "~0.8.2",
+        "@angular/cli": "~6.2.2",
         "@angular/compiler-cli": "^6.1.0",
         "@angular/language-service": "^6.1.0",
         "@starptech/prettyhtml": "0.0.57",
@@ -64,6 +67,7 @@
         "@types/node": "~10.9.4",
         "@types/node-fetch": "^2.1.2",
         "@types/webpack": "^4.4.11",
+        "awesome-typescript-loader": "^5.2.1",
         "codelyzer": "~4.4.4",
         "fs-extra": "^7.0.0",
         "husky": "^0.14.3",
@@ -76,10 +80,11 @@
         "karma-jasmine-html-reporter": "^0.2.2",
         "lint-staged": "^7.2.2",
         "mqtt": "~2.18.8",
+        "ng-packagr": "^4.1.1",
         "node-fetch": "^2.2.0",
+        "npm-run-all": "^4.1.3",
         "prettier": "^1.14.2",
         "protractor": "~5.4.1",
-        "ts-loader": "^5.1.0",
         "ts-node": "~7.0.1",
         "tslint": "~5.11.0",
         "tslint-config-prettier": "^1.15.0",

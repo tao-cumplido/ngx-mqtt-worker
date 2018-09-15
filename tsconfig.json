@@ -15,7 +15,7 @@
         "paths": {
             "ngx-mqtt-worker": ["dist/ngx-mqtt-worker"],
             "ngx-mqtt-worker/*": ["dist/ngx-mqtt-worker/*"],
-            "browser-mqtt": ["browser-mqtt"],
+            "browser-mqtt": ["browser-mqtt/index.js"],
             "@environment": ["src/environments/environment"]
         }
     }
