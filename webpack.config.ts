@@ -44,7 +44,7 @@ async function createConfig(): Promise<Configuration> {
         },
         output: {
             filename: 'mqtt-worker.js',
-            path: path.resolve(cwd, 'dist'),
+            path: path.resolve(cwd, 'dist', 'ngx-mqtt-worker', 'bundles'),
         },
     };
 }

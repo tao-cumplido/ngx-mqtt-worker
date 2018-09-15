@@ -61,7 +61,7 @@
                             "src/assets",
                             {
                                 "glob": "mqtt-worker.js",
-                                "input": "dist",
+                                "input": "dist/ngx-mqtt-worker/bundles",
                                 "output": "/"
                             }
                         ],
