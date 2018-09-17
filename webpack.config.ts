@@ -17,9 +17,9 @@ async function createConfig(): Promise<Configuration> {
         const packageJson: PackageJson = await readJson(
             path.join(cwd, 'package.json')
         );
-        const mqttVersion = packageJson.devDependencies.mqtt.replace('~', '');
+        const version = packageJson.devDependencies.mqtt;
         const response = await fetch(
-            `https://unpkg.com/mqtt@${mqttVersion}/dist/mqtt.js`
+            `https://unpkg.com/mqtt@${version}/dist/mqtt.js`
         );
         await writeFile(browserMqtt, await response.text());
     }
