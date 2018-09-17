@@ -12,11 +12,16 @@
         "target": "es5",
         "typeRoots": ["node_modules/@types"],
         "lib": ["es2017", "dom"],
+        "downlevelIteration": true,
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "paths": {
             "ngx-mqtt-worker": ["dist/ngx-mqtt-worker"],
             "ngx-mqtt-worker/*": ["dist/ngx-mqtt-worker/*"],
             "browser-mqtt": ["browser-mqtt/index.js"],
-            "@environment": ["src/environments/environment"]
+            "@environment": ["src/environments/environment"],
+            "@types": ["projects/ngx-mqtt-worker/src/types"]
         }
     }
 }
