@@ -25,6 +25,7 @@ async function createConfig(): Promise<Configuration> {
     }
 
     return {
+        target: 'webworker',
         entry: [
             './browser-mqtt/index.js',
             './projects/ngx-mqtt-worker/src/worker/index.ts',
