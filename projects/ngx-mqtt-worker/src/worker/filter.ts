@@ -1,11 +1,14 @@
 export function validate(filter: string): RegExp | undefined {
-    const validator = /^(?:#|\+|(?:[^$+#/]*|\+)(?:\/(?:[^$+#/]*|\+))*(?:\/+|\/#)?)$/;
+    const validator = /^(?:#|\+|(?:\$?[^$+#/]*|\+)(?:\/(?:[^$+#/]*|\+))*(?:\/+|\/#)?)$/;
 
-    if (!validator.test(filter)) {
+    if (!filter || !validator.test(filter)) {
         return;
     }
 
-    filter = filter.replace('+', '[^/]*').replace('#', '.*');
+    filter = filter
+        .replace('$', '\\$')
+        .replace('+', '[^/]*')
+        .replace('#', '.*');
 
     return new RegExp(`^${filter}$`);
 }
