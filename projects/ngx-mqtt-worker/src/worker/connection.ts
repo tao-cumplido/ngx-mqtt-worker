@@ -2,11 +2,13 @@ import {
     IClientPublishOptions,
     IClientSubscribeOptions,
     MqttClient,
-} from 'browser-mqtt';
+} from 'mqtt';
 
 import {
+    ErrorType,
     MqttMessageEvent,
     MqttPortEvent,
+    WorkerConnectionMessage,
     WorkerConnectionPort,
     WorkerSubscriptionPort,
 } from '@types';
@@ -14,12 +16,22 @@ import { errorMessage } from './error';
 
 export class Connection {
     private subscriptions = new Map<RegExp, Set<WorkerSubscriptionPort>>();
+    private listeners = new Set<WorkerConnectionPort>();
 
-    constructor(
-        private port: WorkerConnectionPort,
-        private client: MqttClient
-    ) {
+    private state?: WorkerConnectionMessage;
+
+    constructor(private client: MqttClient) {
         this.initClient();
+    }
+
+    register(port: WorkerConnectionPort): void {
+        this.listeners.add(port);
+
+        if (this.state) {
+            port.postMessage(this.state);
+        }
+
+        port.isDead.then(() => this.listeners.delete(port));
     }
 
     subscribe(
@@ -36,6 +48,8 @@ export class Connection {
 
         references.add(port);
         this.subscriptions.set(filter, references);
+
+        port.isDead.then(() => references.delete(port));
     }
 
     unsubscribe(
@@ -62,33 +76,61 @@ export class Connection {
         this.client.publish(topic, payload, options!);
     }
 
-    close(eventHandler: (event: MqttPortEvent) => void): void {
-        for (const ports of this.subscriptions.values()) {
-            ports.forEach((port) => {
-                port.removeEventListener('message', eventHandler);
+    close(
+        port: WorkerConnectionPort,
+        eventHandler: (event: MqttPortEvent) => void
+    ): boolean {
+        this.listeners.delete(port);
+
+        if (this.listeners.size) return false;
+
+        this.subscriptions.forEach((references) => {
+            references.forEach((subscriptionPort) => {
+                subscriptionPort.removeEventListener('message', eventHandler);
             });
-        }
+        });
 
         this.client.end(true);
+        return true;
     }
 
     private initClient(): void {
         this.client.on('connect', () => {
-            this.port.postMessage({ type: 'mqtt-connect' });
+            const state: WorkerConnectionMessage = { type: 'mqtt-connect' };
+            this.state = state;
+            this.listeners.forEach((port) => {
+                port.postMessage(state);
+            });
         });
 
         this.client.on('reconnect', () => {});
 
         this.client.on('close', () => {
-            this.port.postMessage({ type: 'mqtt-close' });
+            const state: WorkerConnectionMessage = { type: 'mqtt-close' };
+            this.state = state;
+            this.listeners.forEach((port) => {
+                port.postMessage(state);
+            });
         });
 
         this.client.on('offline', () => {
-            this.port.postMessage({ type: 'mqtt-offline' });
+            const state: WorkerConnectionMessage = { type: 'mqtt-offline' };
+            this.state = state;
+            this.listeners.forEach((port) => {
+                port.postMessage(state);
+            });
         });
 
         this.client.on('error', (error) => {
-            this.port.postMessage(errorMessage(error));
+            const state = errorMessage(
+                error.message,
+                ErrorType.MqttConnectionError,
+                error.stack
+            );
+            this.state = state;
+            this.listeners.forEach((port) => {
+                port.postMessage(state);
+            });
         });
 
         this.client.on('message', (topic, payload) => {

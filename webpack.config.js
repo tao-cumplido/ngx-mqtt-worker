@@ -1,22 +1,15 @@
-import { pathExists, readJson, writeFile } from 'fs-extra';
-import * as path from 'path';
+const { pathExists, readJson, writeFile } = require('fs-extra');
+const path = require('path');
 
-import { TsConfigPathsPlugin } from 'awesome-typescript-loader';
-import fetch from 'node-fetch';
-import { Configuration } from 'webpack';
+const { TsConfigPathsPlugin } = require('awesome-typescript-loader');
+const fetch = require('node-fetch').default;
 
-interface PackageJson {
-    devDependencies: Record<string, string>;
-}
-
-async function createConfig(): Promise<Configuration> {
+async function createConfig() {
     const cwd = process.cwd();
     const browserMqtt = path.join(cwd, 'browser-mqtt', 'index.js');
 
     if (!(await pathExists(browserMqtt))) {
-        const packageJson: PackageJson = await readJson(
-            path.join(cwd, 'package.json')
-        );
+        const packageJson = await readJson(path.join(cwd, 'package.json'));
         const version = packageJson.devDependencies.mqtt;
         const response = await fetch(
             `https://unpkg.com/mqtt@${version}/dist/mqtt.js`
@@ -31,7 +24,8 @@ async function createConfig(): Promise<Configuration> {
             rules: [
                 {
                     test: /\.ts$/,
-                    use: 'awesome-typescript-loader',
+                    use:
+                        'awesome-typescript-loader?configFileName=./projects/ngx-mqtt-worker/tsconfig.worker.json',
                     exclude: [/node_modules/],
                 },
             ],
@@ -47,4 +41,4 @@ async function createConfig(): Promise<Configuration> {
     };
 }
 
-export default createConfig();
+exports.default = createConfig();

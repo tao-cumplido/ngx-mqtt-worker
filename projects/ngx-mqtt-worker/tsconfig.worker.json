@@ -1,0 +1,8 @@
+{
+    "extends": "./tsconfig.lib.json",
+    "compilerOptions": {
+        "sourceMap": false,
+        "inlineSources": false,
+        "importHelpers": false
+    }
+}

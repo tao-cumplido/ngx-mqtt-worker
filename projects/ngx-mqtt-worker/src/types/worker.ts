@@ -2,9 +2,9 @@ import {
     IClientOptions,
     IClientPublishOptions,
     IClientSubscribeOptions,
-} from 'browser-mqtt';
+} from 'mqtt';
 
-import { ErrorEvent } from './error';
+import { RequestErrorEvent } from './error';
 
 export interface ConnectRequest {
     type: 'connect';
@@ -45,15 +45,23 @@ export interface Ping {
 
 export interface MqttPort extends MessagePort {
     isDead: Promise<void>;
-    postMessage(message: ErrorEvent): void;
+    postMessage(message: RequestErrorEvent): void;
 }
 
 export interface MonitorPort extends MqttPort {
-    postMessage(message: ErrorEvent | Ping): void;
+    postMessage(message: RequestErrorEvent | Ping): void;
 }
 
 export interface MqttWorkerEvent extends MessageEvent {
     ports: [MqttPort];
+}
+
+export interface WorkerMessage {
+    type: string;
+}
+
+export interface WorkerMessageEvent extends MessageEvent {
+    data: WorkerMessage;
 }
 
 export interface MqttPortEvent extends MessageEvent {

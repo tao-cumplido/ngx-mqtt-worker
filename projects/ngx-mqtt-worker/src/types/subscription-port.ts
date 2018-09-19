@@ -1,5 +1,12 @@
-import { ErrorEvent } from './error';
-import { MqttPort } from './worker';
+import { RequestErrorEvent } from './error';
+import { SharedWorker } from './shared-worker';
+import {
+    MqttPort,
+    Ping,
+    SubscribeRequest,
+    UnsubscribeRequest,
+    WorkerMessage,
+} from './worker';
 
 export interface MqttMessageEvent {
     type: 'mqtt-message';
@@ -8,5 +15,24 @@ export interface MqttMessageEvent {
 }
 
 export interface WorkerSubscriptionPort extends MqttPort {
-    postMessage(message: ErrorEvent | MqttMessageEvent): void;
+    postMessage(message: RequestErrorEvent | MqttMessageEvent): void;
+}
+
+export type WorkerSubscriptionMessage =
+    | WorkerMessage
+    | Ping
+    | SubscribeRequest
+    | UnsubscribeRequest;
+
+export interface ClientSubscriptionEvent extends MessageEvent {
+    data: RequestErrorEvent | Ping | MqttMessageEvent;
+}
+
+export interface ClientSubscriptionPort extends MessagePort {
+    postMessage(message: WorkerSubscriptionMessage): void;
+}
+
+// @ts-ignore
+export interface ClientSubscriptionWorker extends SharedWorker {
+    port: ClientSubscriptionPort;
 }

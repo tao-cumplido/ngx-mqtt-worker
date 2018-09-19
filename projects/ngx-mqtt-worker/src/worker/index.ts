@@ -2,6 +2,7 @@ import * as mqtt from 'browser-mqtt';
 
 import {
     ConnectRequest,
+    ErrorType,
     MonitorPort,
     MqttPort,
     MqttPortEvent,
@@ -19,8 +20,6 @@ const filterCache: Partial<Record<string, RegExp>> = {};
 
 // @ts-ignore
 addEventListener('connect', ({ ports: [port] }: MqttWorkerEvent) => {
-    monitorPort(port);
-
     const handleMessage: (event: MqttPortEvent) => void = ({ data }) => {
         switch (data.type) {
             case 'connect':
@@ -36,26 +35,33 @@ addEventListener('connect', ({ ports: [port] }: MqttWorkerEvent) => {
                 return publish(port, data);
             case 'close':
                 ensureConnection(port, data.connection, (connection) => {
-                    connection.close(handleMessage);
-                    connections.delete(data.connection);
+                    if (connection.close(port, handleMessage)) {
+                        connections.delete(data.connection);
+                    }
                 });
                 return port.removeEventListener('message', handleMessage);
         }
     };
+
+    monitorPort(port, handleMessage);
 
     port.addEventListener('message', handleMessage);
 
     port.start();
 });
 
-function monitorPort(port: MonitorPort): void {
+function monitorPort(
+    port: MonitorPort,
+    handleMessage: (event: MqttPortEvent) => void
+): void {
     port.isDead = new Promise((resolve) => {
-        const sendRequest = () =>
+        const sendRequest = () => {
             setTimeout(() => {
                 let handleResponse: (event: MqttPortEvent) => void;
 
                 const killPort = setTimeout(() => {
                     port.removeEventListener('message', handleResponse);
+                    port.removeEventListener('message', handleMessage);
                     resolve();
                 }, 1000);
 
@@ -70,16 +76,27 @@ function monitorPort(port: MonitorPort): void {
                 port.addEventListener('message', handleResponse);
                 port.postMessage({ type: 'ping' });
             }, 5000);
+        };
+
+        sendRequest();
     });
 }
 
 function connect(port: MqttPort, { name, url, options }: ConnectRequest): void {
-    if (connections.has(name)) return;
-    const client = mqtt.connect(
-        url,
-        options
-    );
-    connections.set(name, new Connection(port, client));
+    let connection = connections.get(name);
+
+    if (!connection) {
+        connection = new Connection(
+            mqtt.connect(
+                url,
+                options
+            )
+        );
+    }
+
+    connection.register(port);
+
+    connections.set(name, connection);
 }
 
 function subscribe(
@@ -90,7 +107,10 @@ function subscribe(
         const filter = filterCache[topic] || validate(topic);
 
         if (!filter) {
-            const message = errorMessage(`Invalid topic filter '${topic}'`);
+            const message = errorMessage(
+                `Invalid topic filter '${topic}'`,
+                ErrorType.InvalidTopicError
+            );
             port.postMessage(message);
             return;
         }
@@ -109,7 +129,8 @@ function unsubscribe(
 
         if (!filter) {
             const message = errorMessage(
-                `Topic '${topic}' hasn't been subscribed yet.`
+                `Topic '${topic}' hasn't been subscribed yet.`,
+                ErrorType.NoSuchSubscriptionError
             );
             port.postMessage(message);
             return;
@@ -138,7 +159,10 @@ function ensureConnection(
     if (connection) {
         callback(connection);
     } else {
-        const message = errorMessage(`Connection '${name}' doesn't exist.`);
+        const message = errorMessage(
+            `Connection '${name}' doesn't exist.`,
+            ErrorType.NoSuchConnectionError
+        );
         port.postMessage(message);
     }
 }
