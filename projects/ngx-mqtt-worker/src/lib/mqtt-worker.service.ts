@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
+import { IClientOptions } from 'mqtt';
 
 import { MqttConnection } from './mqtt-connection';
-
-type IClientOptions = import('mqtt').IClientOptions;
 @Injectable({
     providedIn: 'root',
 })

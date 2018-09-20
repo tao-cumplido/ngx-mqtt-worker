@@ -1,3 +1,4 @@
+import { IClientOptions, IClientPublishOptions, QoS } from 'mqtt';
 import { Observable, Subject } from 'rxjs';
 import { share, shareReplay } from 'rxjs/operators';
 
@@ -10,10 +11,6 @@ import {
     SharedWokerConstructor,
     WorkerMessageEvent,
 } from '@types';
-
-type QoS = import('mqtt').QoS;
-type IClientOptions = import('mqtt').IClientOptions;
-type IClientPublishOptions = import('mqtt').IClientPublishOptions;
 
 declare var SharedWorker: SharedWokerConstructor;
 
