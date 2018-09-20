@@ -12,8 +12,7 @@
         "lint": "ng lint",
         "e2e": "ng e2e",
         "rm:dist": "rimraf dist",
-        "precommit": "lint-staged",
-        "prepare": "npm run build:prod"
+        "precommit": "lint-staged"
     },
     "lint-staged": {
         "ignore": [
