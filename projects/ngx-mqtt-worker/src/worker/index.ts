@@ -23,10 +23,8 @@ addEventListener('connect', ({ ports: [port] }: MqttWorkerEvent) => {
     const handleMessage: (event: MqttPortEvent) => void = ({ data }) => {
         switch (data.type) {
             case 'connect':
-                return connect(
-                    port,
-                    data
-                );
+                // prettier-ignore
+                return connect(port, data);
             case 'subscribe':
                 return subscribe(port, data);
             case 'unsubscribe':
@@ -87,10 +85,8 @@ function connect(port: MqttPort, { name, url, options }: ConnectRequest): void {
 
     if (!connection) {
         connection = new Connection(
-            mqtt.connect(
-                url,
-                options
-            )
+            // prettier-ignore
+            mqtt.connect(url, options)
         );
     }
 
